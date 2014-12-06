@@ -24,7 +24,10 @@
     "grunt-focus": "^0.1.1"
   },
   "dependencies": {
+    "body-parser": "^1.10.0",
+    "es6-promise": "^2.0.0",
     "express": "^4.10.4",
-    "mongoose": "^3.8.20"
+    "mongoose": "^3.8.20",
+    "pubnub": "^3.7.0"
   }
 }
