@@ -107,5 +107,6 @@ module.exports = function(grunty){
 	grunty.loadNpmTasks("grunt-focus");
 
 	grunty.registerTask("bowerLibs", ["clean:libs", "uglify:libs"]);
+	grunty.registerTask("build", ["clean:libs", "uglify:libs", "uglify:scripts", "jade", "less"]);
 	grunty.registerTask("default", ["clean:libs", "uglify:libs", "focus:all"]);
 }
