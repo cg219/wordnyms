@@ -57,24 +57,37 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			}
 
 			scope.playSingle = function(playerName){
-				location.path("/game/solo/" + player.name + "/1");
+				console.log(scope.playerName)
+				if(scope.playerName == "" ||
+					scope.playerAge == "" ||
+					scope.playerName == undefined ||
+					scope.playerAge == undefined){
+						alert("Please fill out your name and age.");
+				}
+				else{
+					location.path("/game/solo/" + player.name + "/1");
+				}
 			}
 	}])
 	.controller("SingleGame", ["$scope", "$resource", "WordList", "Word", "$interval", "$location", "Player", "$routeParams",
 		function(scope, resource, wordlist, word, interval, location, player, route){
+			
+			var gameLevel = 1;
+			var timerTick;
+			var list;
+
+			scope.checkingGuess = false
 			scope.roundNumber = route.round;
-			scope.timer = 10;
-			scope.gameLevel = 1;
+			scope.timer = 60;
+			gameLevel = 1;
 			player.roundStreak = 0;
 			player.roundScore = 0;
 			player.correct = 0;
-
-			var timerTick;
-			var list = wordlist.get({
-				level: scope.gameLevel
+			list = wordlist.get({
+				level: gameLevel
 			}, function(result){
 				console.log(result);
-				scope.getRandomWord();
+				getRandomWord();
 			})
 			
 			timerTick = interval(function(){
@@ -85,11 +98,8 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 					player.score += player.roundScore;
 					player.highestStreak = player.roundStreak > player.highestStreak ? player.roundStreak : player.highestStreak
 
-					if(scope.roundNumber == 3 ){
-						location.path("/results/solo/final/" + player.name);
-					}
-					else{
-						location.path("/results/solo/round/" + player.name + "/" + scope.roundNumber);
+					if(!scope.checkingGuess){
+						gotoEndPage();
 					}
 				}
 			}, 1000);
@@ -102,7 +112,17 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 				scope.synonymsLeft = scope.synonyms ? scope.synonyms.length : 0;
 			})
 
-			scope.getRandomWord = function(){
+			scope.$watch("checkingGuess", function(){
+				if(scope.timer <= 0){
+					if(!scope.checkingGuess){
+						gotoEndPage();
+					}
+				}
+			})
+
+			/* Functions */
+
+			var getRandomWord = function(){
 				console.log("Getting Random Word");
 
 				word.get({
@@ -121,12 +141,12 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 				})
 			}
 
-			scope.updateScore = function(){
+			var updateScore = function(){
 				player.streak++;
 
 				var levelMultiplier = scope.roundNumber;
 				var guessMultiplier = player.streak >= 3 ? (player.streak - 2) * 10 : 0;
-				var baseReward = scope.gameLevel * 10;
+				var baseReward = gameLevel * 10;
 
 				player.roundStreak = player.streak > player.roundStreak ? player.streak : player.roundStreak;
 				player.roundScore += (baseReward * levelMultiplier) + guessMultiplier;
@@ -135,26 +155,41 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 				console.log("Score: " + player.roundScore);
 			}
 
+			var gotoEndPage = function(){
+				if(scope.roundNumber == 3 ){
+					location.path("/results/solo/final/" + player.name);
+				}
+				else{
+					location.path("/results/solo/round/" + player.name + "/" + scope.roundNumber);
+				}
+			}
+
+			/* Scope Functions */
+
 			scope.nextWord = function(lastWord){
 				list.words = _.without(list.words, lastWord);
-				scope.getRandomWord();
+				getRandomWord();
 				console.log(list);
 			}
 
 			scope.guess = function(){
-				var guess = scope.playerGuess;
+				var guess = scope.playerGuess.toLowerCase();
+				scope.checkingGuess = true;
 
-				if(_.contains(scope.antonyms, guess.toLowerCase())){
-					scope.antonyms = _.without(scope.antonyms, guess.toLowerCase());
-					scope.updateScore();
+				if(_.contains(scope.antonyms, guess)){
+					scope.antonyms = _.without(scope.antonyms, guess);
+					updateScore();
+					scope.checkingGuess = false;
 				}
-				else if(_.contains(scope.synonyms, guess.toLowerCase())){
-					scope.synonyms = _.without(scope.synonyms, guess.toLowerCase());
-					scope.updateScore();
+				else if(_.contains(scope.synonyms, guess)){
+					scope.synonyms = _.without(scope.synonyms, guess);
+					updateScore();
+					scope.checkingGuess = false;
 				}
 				else{
 					scope.timer -= 2;
 					player.streak = 0;
+					scope.checkingGuess = false;
 				}
 
 				scope.playerGuess = "";
@@ -165,6 +200,7 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 		function(scope, resource, player, interval, location, route){
 			scope.player = player;
 			scope.timer = 15;
+			scope.roundNumber = route.round;
 
 			console.log(route);
 
