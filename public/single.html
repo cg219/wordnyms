@@ -2,6 +2,8 @@
 <div>
   <h2>Round {{roundNumber}}</h2><span class="timer">{{timer}}</span>
   <h4>{{currentWord}} ({{currentWordType}})</h4>
+  <h5>Antonyms Left: {{antonymsLeft}}</h5>
+  <h5>Synonyms Left: {{synonymsLeft}}</h5>
   <input name="playerGuess" ng-model="playerGuess" km-enter="guess()" type="text" placeholder="Enter an Answer"/>
   <div class="buttons">
     <button ng-click="nextWord(currentWord)">

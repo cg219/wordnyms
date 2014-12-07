@@ -4,11 +4,16 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 
 		router
 			.when("/", {
-				templateUrl: "home.html"
+				templateUrl: "home.html",
+				controller: "Main"
 			})
 			.when("/single/:player", {
 				templateUrl: "single.html",
 				controller: "SingleGame"
+			})
+			.when("/single/results/:player/:round", {
+				templateUrl: "round.html",
+				controller: "RoundRecap"
 			})
 	}])
 	.factory("Word", ["$resource", function(resource){
@@ -17,6 +22,13 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 	.factory("WordList", ["$resource", function(resource){
 		return resource("/api/nyms/getList/:level")
 	}])
+	.factory("Player", function(){
+		return {
+			name: "",
+			score: 0,
+			correct: 0
+		}
+	})
 	.directive("kmEnter", function(){
 		return {
 			restrict: "A",
@@ -29,14 +41,19 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			}
 		}
 	})
-	.controller("Player", ["$scope", "$location",
-		function(scope, location){
+	.controller("Main", ["$scope", "$location", "Player",
+		function(scope, location, player){
+
+			scope.updateName = function(){
+				player.name = scope.playerName;
+			}
+
 			scope.playSingle = function(playerName){
-				location.path("/single/" + playerName);
-		}
+				location.path("/single/" + player.name);
+			}
 	}])
-	.controller("SingleGame", ["$scope", "$resource", "WordList", "Word", "$interval",
-		function(scope, resource, wordlist, word, interval){
+	.controller("SingleGame", ["$scope", "$resource", "WordList", "Word", "$interval", "$location", "Player",
+		function(scope, resource, wordlist, word, interval, location, player){
 			var timerTick;
 			var list = wordlist.get({
 				level: 2
@@ -49,14 +66,21 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			scope.timer = 10;
 			
 			timerTick = interval(function(){
+				scope.timer -= 1;
 				if(scope.timer <= 0){
 					interval.cancel(timerTick);
-					return;
+					scope.roundNumber++;
+					location.path("/single/results/" + player.name + "/" + scope.roundNumber);
 				}
-				scope.timer -= 1;
 			}, 1000);
 
-			window.Word = word;
+			scope.$watch("antonyms", function(){
+				scope.antonymsLeft = scope.antonyms ? scope.antonyms.length : 0;
+			})
+
+			scope.$watch("synonyms", function(){
+				scope.synonymsLeft = scope.synonyms ? scope.synonyms.length : 0;
+			})
 
 			scope.getRandomWord = function(){
 				console.log("Getting Random Word");
@@ -65,8 +89,15 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 					word: list.words[_.random(list.words.length)]
 				}, function(currentWord){
 					console.log(currentWord);
+					if(!currentWord.type){
+						scope.nextWord();
+						return;
+					}
+
 					scope.currentWordType = currentWord.type;
 					scope.currentWord = currentWord.word.name;
+					scope.antonyms = currentWord.word.antonyms[currentWord.type];
+					scope.synonyms = currentWord.word.synonyms[currentWord.type];
 				})
 			}
 
@@ -77,7 +108,23 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			}
 
 			scope.guess = function(){
-				console.log(scope.playerGuess);
+				var guess = scope.playerGuess;
+
+				if(_.contains(scope.antonyms, guess.toLowerCase())){
+					scope.antonyms = _.without(scope.antonyms, guess.toLowerCase());
+				}
+				else if(_.contains(scope.synonyms, guess.toLowerCase())){
+					scope.synonyms = _.without(scope.synonyms, guess.toLowerCase());
+				}
+				else{
+					scope.timer -= 2;
+				}
+
+				scope.playerGuess = "";
 			}
 
 	}])
+	.controller("RoundRecap", ["$scope", "$resource",
+		function(scope, resource){
+
+		}])

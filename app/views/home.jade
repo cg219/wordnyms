@@ -1,5 +1,5 @@
 div
-	input(ng-model="playerName", placeholder="Enter You Name")
+	input(ng-change="updateName()", ng-model="playerName", placeholder="Enter You Name")
 	button(ng-click="playSingle(playerName)")
 		p Play Single Player
 

@@ -2,6 +2,9 @@ div
 	h2 Round {{roundNumber}}
 	span.timer {{timer}}
 	h4 {{currentWord}} ({{currentWordType}})
+	h5 Antonyms Left: {{antonymsLeft}}
+	h5 Synonyms Left: {{synonymsLeft}}
+
 	input(name="playerGuess", ng-model="playerGuess", km-enter="guess()" type="text", placeholder="Enter an Answer")
 
 	.buttons
