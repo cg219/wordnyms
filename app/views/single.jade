@@ -1,7 +1,8 @@
 div
 	h2 Round {{roundNumber}}
-	h4 {{currentWord}}
-	input(name="playerGuess", ng-model="playerGuess", type="text", placeholder="Enter an Answer")
+	span.timer {{timer}}
+	h4 {{currentWord}} ({{currentWordType}})
+	input(name="playerGuess", ng-model="playerGuess", km-enter="guess()" type="text", placeholder="Enter an Answer")
 
 	.buttons
 		button(ng-click="nextWord(currentWord)")

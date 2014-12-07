@@ -28,9 +28,12 @@ module.exports = function(router, app){
 		mongo.search(req.word)
 			.then(function(foundWord){
 				if( foundWord.length > 0 ){
-					console.log("Found Word: ");
-					console.log(foundWord);
-					res.json(foundWord[0]);
+					console.log("Found Word");
+					// console.log("Type: " + foundWord[0].randomType());
+					res.json({
+						word: foundWord[0],
+						type: foundWord[0].randomType()
+					});
 				}
 				else{
 					console.log("Calling Big Huge Theasaurus for help!")
@@ -40,7 +43,11 @@ module.exports = function(router, app){
 							console.log("Success");
 							mongo.store(req.word, JSON.parse(result))
 								.then(function(newWord){
-									res.json(newWord);
+									// console.log("Type: " + newWord.randomType());
+									res.json({
+										word: newWord,
+										type: newWord.randomType()
+									});
 								})
 						},
 						error: function(error){

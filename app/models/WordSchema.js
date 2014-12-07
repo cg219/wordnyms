@@ -1,5 +1,7 @@
+var _ = require("underscore");
+
 module.exports = function(mongoose){
-	return new mongoose.Schema({
+	var schema = new mongoose.Schema({
 		name: {
 			type: String,
 			unique: true
@@ -28,5 +30,19 @@ module.exports = function(mongoose){
 			type: Date,
 			default: Date.now
 		}
+
 	});
+
+	schema.method("randomType", function(){
+		var self = this;
+		var validTypes = _.omit(self.types, function(value, key, object){
+			return value !== true;
+		});
+		var validKeys = _.keys(validTypes);
+
+		return validKeys[_.random(validKeys.length - 1)];
+
+	});
+
+	return schema;
 }

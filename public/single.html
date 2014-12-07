@@ -1,8 +1,8 @@
 
 <div>
-  <h2>Round {{roundNumber}}</h2>
-  <h4>{{currentWord}}</h4>
-  <input name="playerGuess" ng-model="playerGuess" type="text" placeholder="Enter an Answer"/>
+  <h2>Round {{roundNumber}}</h2><span class="timer">{{timer}}</span>
+  <h4>{{currentWord}} ({{currentWordType}})</h4>
+  <input name="playerGuess" ng-model="playerGuess" km-enter="guess()" type="text" placeholder="Enter an Answer"/>
   <div class="buttons">
     <button ng-click="nextWord(currentWord)">
       <p>Next Word</p>
