@@ -7,13 +7,17 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 				templateUrl: "home.html",
 				controller: "Main"
 			})
-			.when("/single/:player", {
+			.when("/game/solo/:player/:round", {
 				templateUrl: "single.html",
 				controller: "SingleGame"
 			})
-			.when("/single/results/:player/:round", {
+			.when("/results/solo/round/:player/:round", {
 				templateUrl: "round.html",
 				controller: "RoundRecap"
+			})
+			.when("/results/solo/final/:player", {
+				templateUrl: "final.html",
+				controller: "FinalStats"
 			})
 	}])
 	.factory("Word", ["$resource", function(resource){
@@ -26,7 +30,11 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 		return {
 			name: "",
 			score: 0,
-			correct: 0
+			roundScore: 0,
+			correct: 0,
+			streak: 0,
+			roundStreak: 0,
+			highestStreak: 0
 		}
 	})
 	.directive("kmEnter", function(){
@@ -49,28 +57,40 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			}
 
 			scope.playSingle = function(playerName){
-				location.path("/single/" + player.name);
+				location.path("/game/solo/" + player.name + "/1");
 			}
 	}])
-	.controller("SingleGame", ["$scope", "$resource", "WordList", "Word", "$interval", "$location", "Player",
-		function(scope, resource, wordlist, word, interval, location, player){
+	.controller("SingleGame", ["$scope", "$resource", "WordList", "Word", "$interval", "$location", "Player", "$routeParams",
+		function(scope, resource, wordlist, word, interval, location, player, route){
+			scope.roundNumber = route.round;
+			scope.timer = 10;
+			scope.gameLevel = 1;
+			player.roundStreak = 0;
+			player.roundScore = 0;
+			player.correct = 0;
+
 			var timerTick;
 			var list = wordlist.get({
-				level: 2
+				level: scope.gameLevel
 			}, function(result){
 				console.log(result);
 				scope.getRandomWord();
 			})
-
-			scope.roundNumber = 1;
-			scope.timer = 10;
 			
 			timerTick = interval(function(){
 				scope.timer -= 1;
 				if(scope.timer <= 0){
 					interval.cancel(timerTick);
-					scope.roundNumber++;
-					location.path("/single/results/" + player.name + "/" + scope.roundNumber);
+
+					player.score += player.roundScore;
+					player.highestStreak = player.roundStreak > player.highestStreak ? player.roundStreak : player.highestStreak
+
+					if(scope.roundNumber == 3 ){
+						location.path("/results/solo/final/" + player.name);
+					}
+					else{
+						location.path("/results/solo/round/" + player.name + "/" + scope.roundNumber);
+					}
 				}
 			}, 1000);
 
@@ -101,6 +121,20 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 				})
 			}
 
+			scope.updateScore = function(){
+				player.streak++;
+
+				var levelMultiplier = scope.roundNumber;
+				var guessMultiplier = player.streak >= 3 ? (player.streak - 2) * 10 : 0;
+				var baseReward = scope.gameLevel * 10;
+
+				player.roundStreak = player.streak > player.roundStreak ? player.streak : player.roundStreak;
+				player.roundScore += (baseReward * levelMultiplier) + guessMultiplier;
+				player.correct++;
+
+				console.log("Score: " + player.roundScore);
+			}
+
 			scope.nextWord = function(lastWord){
 				list.words = _.without(list.words, lastWord);
 				scope.getRandomWord();
@@ -112,19 +146,38 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 
 				if(_.contains(scope.antonyms, guess.toLowerCase())){
 					scope.antonyms = _.without(scope.antonyms, guess.toLowerCase());
+					scope.updateScore();
 				}
 				else if(_.contains(scope.synonyms, guess.toLowerCase())){
 					scope.synonyms = _.without(scope.synonyms, guess.toLowerCase());
+					scope.updateScore();
 				}
 				else{
 					scope.timer -= 2;
+					player.streak = 0;
 				}
 
 				scope.playerGuess = "";
 			}
 
 	}])
-	.controller("RoundRecap", ["$scope", "$resource",
-		function(scope, resource){
+	.controller("RoundRecap", ["$scope", "$resource", "Player", "$interval", "$location", "$routeParams",
+		function(scope, resource, player, interval, location, route){
+			scope.player = player;
+			scope.timer = 15;
 
+			console.log(route);
+
+			var timerTick = interval(function(){
+				scope.timer -= 1;
+				if(scope.timer <= 0){
+					interval.cancel(timerTick);
+
+					location.path("/game/solo/" + player.name + "/" + ++route.round);
+				}
+			}, 1000);
+		}])
+	.controller("FinalStats", ["$scope", "$resource", "Player", "$interval", "$location",
+		function(scope, resource, player, interval, location){
+			scope.player = player;
 		}])
