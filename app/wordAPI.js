@@ -3,12 +3,29 @@ var request = require("./helpers.js");
 var config = require("./../config/config");
 var mongo = require("./mongo");
 
-module.exports = function(router){
-	router.get("/:word", function(req, res){
-		var word = req.param("word");
-		
+module.exports = function(router, app){
 
-		mongo.search(word)
+	router.param("word", function(req, res, next, word){
+		if(!word){
+			return next(err);
+		}
+
+		req.word = word;
+		next();
+	})
+
+	router.param("level", function(req, res, next, level){
+		if(!level){
+			req.level = 1;
+			return next();
+		}
+
+		req.level = level;
+		next();
+	})
+
+	router.get("/:word", function(req, res){
+		mongo.search(req.word)
 			.then(function(foundWord){
 				if( foundWord.length > 0 ){
 					console.log("Found Word: ");
@@ -18,10 +35,10 @@ module.exports = function(router){
 				else{
 					console.log("Calling Big Huge Theasaurus for help!")
 					request.get({
-						endpoint: endpoint.nyms + config.words + "/" + word + "/json",
+						endpoint: endpoint.nyms + config.words + "/" + req.word + "/json",
 						success: function(result){
 							console.log("Success");
-							mongo.store(word, JSON.parse(result))
+							mongo.store(req.word, JSON.parse(result))
 								.then(function(newWord){
 									res.json(newWord);
 								})
@@ -37,6 +54,11 @@ module.exports = function(router){
 			})
 		
 	});
+
+	router.get("/getList/:level", function(req, res){
+		console.log(req.level);
+		res.json(require("./words")(req.level));
+	})
 
 	return router;
 }

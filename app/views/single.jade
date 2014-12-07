@@ -1,0 +1,8 @@
+div
+	h2 Round {{roundNumber}}
+	h4 {{currentWord}}
+	input(name="playerGuess", ng-model="playerGuess", type="text", placeholder="Enter an Answer")
+
+	.buttons
+		button(ng-click="nextWord(currentWord)")
+			p Next Word
