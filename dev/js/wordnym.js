@@ -1,4 +1,6 @@
-angular.module("WordNyms", ["ngRoute", "ngResource"])
+$.material.init();
+
+angular.module("WordNyms", ["ngRoute", "ngResource", "ngAudio"])
 	.config(["$routeProvider", "$locationProvider", function(router, location){
 		location.html5Mode(true);
 
@@ -34,7 +36,22 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			correct: 0,
 			streak: 0,
 			roundStreak: 0,
-			highestStreak: 0
+			highestStreak: 0,
+			allGuesses: [],
+			currentWordInfo: {},
+			currentCorrectAnswers: [],
+			gameLevel: 1,
+			resetStats: function(){
+				this.score = 0;
+				this.roundScore = 0;
+				this.correct = 0;
+				this.streak = 0;
+				this.roundStreak = 0;
+				this.highestStreak = 0;
+				this.allGuesses = [];
+				this.currentWordInfo = {};
+				this.currentCorrectAnswers = [];
+			}
 		}
 	})
 	.directive("kmEnter", function(){
@@ -49,49 +66,62 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			}
 		}
 	})
-	.controller("Main", ["$scope", "$location", "Player",
-		function(scope, location, player){
+	.controller("Main", ["$scope", "$location", "Player", "ngAudio",
+		function(scope, location, player, audio){
+			var validateFields = function(){
+				var isValid = true;
+				
+				if(scope.playerName == "" || scope.playerName == undefined){
+					isValid = false;
+				}
+				
+				if(scope.playerAge == "" || scope.playerAge == undefined){
+					isValid = false;
+				}
+
+				return isValid;
+			}
+
+			scope.chosenLevel = 1;
 
 			scope.updateName = function(){
 				player.name = scope.playerName;
 			}
 
 			scope.playSingle = function(playerName){
-				console.log(scope.playerName)
-				if(scope.playerName == "" ||
-					scope.playerAge == "" ||
-					scope.playerName == undefined ||
-					scope.playerAge == undefined){
-						alert("Please fill out your name and age.");
+				if(validateFields()){
+					player.gameLevel = scope.chosenLevel;
+					location.path("/game/solo/" + player.name + "/1");
 				}
 				else{
-					location.path("/game/solo/" + player.name + "/1");
+					alert("Please fill out Age and Name");
 				}
 			}
 	}])
 	.controller("SingleGame", ["$scope", "$resource", "WordList", "Word", "$interval", "$location", "Player", "$routeParams",
 		function(scope, resource, wordlist, word, interval, location, player, route){
 			
-			var gameLevel = 1;
+			var gameLevel;
 			var timerTick;
 			var list;
 
 			scope.checkingGuess = false
 			scope.roundNumber = route.round;
 			scope.timer = 60;
-			gameLevel = 1;
+			scope.guesses = [];
+			scope.score = 0;
+			gameLevel = player.gameLevel;
 			player.roundStreak = 0;
 			player.roundScore = 0;
 			player.correct = 0;
 			list = wordlist.get({
 				level: gameLevel
 			}, function(result){
-				console.log(result);
+				// console.log(result);
 				getRandomWord();
 			})
 			
 			timerTick = interval(function(){
-				scope.timer -= 1;
 				if(scope.timer <= 0){
 					interval.cancel(timerTick);
 
@@ -102,6 +132,7 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 						gotoEndPage();
 					}
 				}
+				scope.timer -= 1;
 			}, 1000);
 
 			scope.$watch("antonyms", function(){
@@ -128,7 +159,7 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 				word.get({
 					word: list.words[_.random(list.words.length)]
 				}, function(currentWord){
-					console.log(currentWord);
+					// console.log(currentWord);
 					if(!currentWord.type){
 						scope.nextWord();
 						return;
@@ -138,6 +169,16 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 					scope.currentWord = currentWord.word.name;
 					scope.antonyms = currentWord.word.antonyms[currentWord.type];
 					scope.synonyms = currentWord.word.synonyms[currentWord.type];
+
+					var wordAnswers = {
+						antonyms: currentWord.word.antonyms[currentWord.type],
+						synonyms: currentWord.word.synonyms[currentWord.type],
+						word: currentWord.word.name,
+						type: currentWord.type
+					}
+
+					player.currentWordInfo = wordAnswers;
+					player.currentCorrectAnswers = [];
 				})
 			}
 
@@ -152,7 +193,7 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 				player.roundScore += (baseReward * levelMultiplier) + guessMultiplier;
 				player.correct++;
 
-				console.log("Score: " + player.roundScore);
+				scope.score = player.roundScore;
 			}
 
 			var gotoEndPage = function(){
@@ -167,9 +208,19 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			/* Scope Functions */
 
 			scope.nextWord = function(lastWord){
+				player.allGuesses.push({
+					name: player.currentWordInfo.word,
+					type: player.currentWordInfo.type,
+					synonyms: player.currentWordInfo.synonyms,
+					antonyms: player.currentWordInfo.antonyms,
+					correct: player.currentCorrectAnswers,
+					round: scope.roundNumber
+				})
+
+				scope.guesses = [];
 				list.words = _.without(list.words, lastWord);
 				getRandomWord();
-				console.log(list);
+				// console.log(list);
 			}
 
 			scope.guess = function(){
@@ -180,16 +231,34 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 					scope.antonyms = _.without(scope.antonyms, guess);
 					updateScore();
 					scope.checkingGuess = false;
+					player.currentCorrectAnswers.push(guess);
+					scope.guesses.push({
+						word: guess,
+						class: "info"
+					})
 				}
 				else if(_.contains(scope.synonyms, guess)){
 					scope.synonyms = _.without(scope.synonyms, guess);
 					updateScore();
 					scope.checkingGuess = false;
+					player.currentCorrectAnswers.push(guess);
+					scope.guesses.push({
+						word: guess,
+						class: "info"
+					})
 				}
 				else{
 					scope.timer -= 2;
 					player.streak = 0;
 					scope.checkingGuess = false;
+					scope.guesses.push({
+						word: guess,
+						class: "danger"
+					})
+				}
+
+				if(scope.synonymsLeft <= 0 && scope.antonymsLeft <= 0 ){
+					scope.nextWord(scope.currentWord);
 				}
 
 				scope.playerGuess = "";
@@ -201,8 +270,6 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 			scope.player = player;
 			scope.timer = 15;
 			scope.roundNumber = route.round;
-
-			console.log(route);
 
 			var timerTick = interval(function(){
 				scope.timer -= 1;
@@ -216,4 +283,9 @@ angular.module("WordNyms", ["ngRoute", "ngResource"])
 	.controller("FinalStats", ["$scope", "$resource", "Player", "$interval", "$location",
 		function(scope, resource, player, interval, location){
 			scope.player = player;
+
+			scope.playAgain = function(){
+				player.resetStats();
+				location.path("/game/solo/" + player.name + "/1");
+			}
 		}])

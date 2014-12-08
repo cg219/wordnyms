@@ -1,13 +1,46 @@
 
-<div>
-  <h2>Round {{roundNumber}}</h2><span class="timer">Remaining Time: {{timer}}</span>
-  <h4>{{currentWord}} ({{currentWordType}})</h4>
-  <h5>Antonyms Left: {{antonymsLeft}}</h5>
-  <h5>Synonyms Left: {{synonymsLeft}}</h5>
-  <input name="playerGuess" ng-model="playerGuess" km-enter="guess()" type="text" placeholder="Enter an Answer"/>
-  <div class="buttons">
-    <button ng-click="nextWord(currentWord)">
-      <p>Next Word</p>
-    </button>
+<div class="col-sm-2">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h1 class="panel-title">Score</h1>
+    </div>
+    <div class="panel-body">
+      <p class="lead text-warning text-center">{{score}} pts</p>
+    </div>
+  </div>
+</div>
+<div class="col-sm-10">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h1 class="panel-title">Round {{roundNumber}} <small class="text-white">- Find all the synonyms and antonyms. Bonus points for not 3+ streaks.</small></h1>
+    </div>
+    <div class="panel-body">
+      <div id="timer" class="progress progress-striped">
+        <div role="progressbar" aria-valuenow="{{timer}}" aria-valuemin="0" aria-valuemax="60" style="width: {{timer/60 * 100}}%" class="progress-bar progress-bar-danger active">
+          <p class="lead text-center">{{timer}}</p>
+        </div>
+      </div>
+      <h2 class="text-center">{{currentWord}}   <small>({{currentWordType}})</small></h2>
+      <div class="form-group col-sm-8 col-sm-offset-2">
+        <input name="playerGuess" ng-model="playerGuess" km-enter="guess()" type="text" placeholder="Enter an Answer" class="form-control input-lg"/><span class="material-input"></span>
+      </div>
+      <div class="col-sm-12">
+        <h5 class="text-warning">Remaining Antonyms:  {{antonymsLeft}}</h5>
+      </div>
+      <div class="col-sm-12">
+        <h5 class="text-warning">Remaining Synonyms:  {{synonymsLeft}} </h5>
+      </div>
+      <div class="col-sm-12">
+        <h6 class="text-primary">
+          <u>Answers</u>
+        </h6>
+        <ul id="guesses" class="list-group">
+          <li ng-repeat="guess in guesses" class="list-group-item list-group-item-{{guess.class}}">{{guess.word}}</li>
+        </ul>
+      </div>
+      <div class="buttons pull-right">
+        <button ng-click="nextWord(currentWord)" class="btn btn-primary">Next Word</button>
+      </div>
+    </div>
   </div>
 </div>

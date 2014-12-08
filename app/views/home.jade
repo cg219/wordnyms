@@ -1,8 +1,41 @@
-div
-	input(ng-change="updateName()", ng-model="playerName", placeholder="Enter Your Name")
-	input(ng-model="playerAge", placeholder="Enter Your Age")
+.col-sm-6.col-sm-offset-3.well
+	form.form-horizontal
+		p.lead.text-center How good is your vocabulary?
+		p.text-center.text-primary Lets Begin!
 
-	button(ng-click="playSingle(playerName)")
-		p Play Single Player
+		fieldset
+			.form-group
+				.form-control-wrapper.col-sm-10.col-sm-offset-1
+					input.form-control(type="text", ng-change="updateName()", ng-model="playerName", placeholder="Enter Your Name")
+					span.material-input
+			.form-group
+				.form-control-wrapper.col-sm-10.col-sm-offset-1
+					input.form-control(type="number", ng-model="playerAge", placeholder="Enter Your Age")
+					span.material-input
+			.form-group
+				.form-control-wrapper.col-sm-10.col-sm-offset-1
+					.radio.radio-inline.radio-primary
+						label
+							input(type="radio", name="levelOptions", ng-model="chosenLevel", id="easy", value="1", checked)
+							span.circle
+							span.check
+							| Easy
+					.radio.radio-inline.radio-primary
+						label
+							input(type="radio", name="levelOptions", ng-model="chosenLevel", id="hard", value="2")
+							span.circle
+							span.check
+							| Hard
+					.radio.radio-inline.radio-primary
+						label
+							input(type="radio", name="levelOptions", ng-model="chosenLevel", id="extreme", value="3")
+							span.circle
+							span.check
+							| EXTREME!
+			.col-sm-6.col-sm-offset-3
+				button.btn.btn-primary(ng-click="playSingle(playerName)") Play Solo Game
 
-	h1 Welcome {{playerName}}
+.col-sm-6.col-sm-offset-2
+	blockquote
+		p Ready to play some Wordsyms!!!
+		small {{playerName || "Me"}}, ({{playerAge || "Age Unknown"}})

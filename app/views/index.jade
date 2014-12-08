@@ -2,10 +2,22 @@ doctype html
 html
 	head
 		meta(charset="utf-8")
-		title Wordnyms
+		title Wordnyms - The antonym and synonym game.
 		base(href="/")
+		link(href="css/styles.css", type="text/css", rel="stylesheet")
 	body(ng-app="WordNyms")
-		div(ng-controller="Main")
-			div(ng-view="")
+		div.container-fluid(ng-controller="Main")
+			.navbar.navbar-default
+				.navbar-header
+					div.navbar-left
+						h1#mainTitle.navbar-text Wordnyms! 
+							small.text-white.tiny Practice your synonyms and antonyms
+				ul#muteNav.nav.navbar-nav.navbar-right
+					li: a(href="http://www.twitter.com/kreativeking"): small @kreativeking
+					li: a(href="http://www.imkreative.com"): small imkreative.com
+					li: small.navbar-text Created by Clemente Gomez for Koding Hackathon
+			div.row
+				div.col-sm-12
+					div(ng-view="")
 		script(src="js/libs.min.js")
 		script(src="js/scripts.min.js")

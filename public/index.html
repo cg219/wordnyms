@@ -2,12 +2,29 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Wordnyms</title>
+    <title>Wordnyms - The antonym and synonym game.</title>
     <base href="/">
+    <link href="css/styles.css" type="text/css" rel="stylesheet">
   </head>
   <body ng-app="WordNyms">
-    <div ng-controller="Main">
-      <div ng-view=""></div>
+    <div ng-controller="Main" class="container-fluid">
+      <div class="navbar navbar-default">
+        <div class="navbar-header">
+          <div class="navbar-left">
+            <h1 id="mainTitle" class="navbar-text">Wordnyms! <small class="text-white tiny">Practice your synonyms and antonyms</small></h1>
+          </div>
+        </div>
+        <ul id="muteNav" class="nav navbar-nav navbar-right">
+          <li><a href="http://www.twitter.com/kreativeking"><small>@kreativeking</small></a></li>
+          <li><a href="http://www.imkreative.com"><small>imkreative.com</small></a></li>
+          <li><small class="navbar-text">Created by Clemente Gomez for Koding Hackathon</small></li>
+        </ul>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div ng-view=""></div>
+        </div>
+      </div>
     </div>
     <script src="js/libs.min.js"></script>
     <script src="js/scripts.min.js"></script>

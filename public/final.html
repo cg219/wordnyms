@@ -1,12 +1,26 @@
 
-<div>
-  <h1>Final Stats Summary</h1>
-  <h2>{{player.name}} Stats</h2>
-  <ul>
-    <li>Correct Answers: {{player.correct}}</li>
-    <li>Highest Streak: {{player.streak}}</li>
-    <li>Round Score: {{player.roundScore}}</li>
-    <li>Total Score: {{player.score}}</li>
-  </ul>
-  <h5>Want to play again?? Click Here</h5>
+<div class="col-sm-12">
+  <h1 class="text-center text-primary">Final Stats Summary</h1>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h1 class="panel-title">{{player.name}} Stats</h1>
+    </div>
+    <div class="panel-body">
+      <ul class="list-group">
+        <li class="list-group-item">
+          <h4>Correct Answers: <small>{{player.correct}}</small></h4>
+        </li>
+        <li class="list-group-item">
+          <h4>Highest Streak: <small>{{player.streak}}</small></h4>
+        </li>
+        <li class="list-group-item">
+          <h4>Round Score: <small>{{player.roundScore}}</small></h4>
+        </li>
+        <li class="list-group-item">
+          <h4>Total Score: <small>{{player.score}}</small></h4>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <button ng-click="playAgain()" class="btn btn-primary">Play Again?</button>
 </div>

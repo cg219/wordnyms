@@ -1,11 +1,19 @@
-div
-	h1 Round {{roundNumber}} Summary
-
-	h2 {{player.name}} Stats
-	ul
-		li Correct Answers: {{player.correct}}
-		li Highest Streak: {{player.streak}}
-		li Round Score: {{player.roundScore}}
-		li Total Score: {{player.score}}
-
-	h5 Next Round starts in {{timer}}
+.col-sm-12
+	h1.text-center.text-primary Round {{roundNumber}} Summary
+	.panel.panel-primary
+		.panel-heading
+			h1.panel-title {{player.name}} Stats
+		.panel-body
+			ul.list-group
+				li.list-group-item: h4 Correct Answers: 
+					small {{player.correct}}
+				li.list-group-item: h4 Highest Streak: 
+					small {{player.streak}}
+				li.list-group-item: h4 Round Score: 
+					small {{player.roundScore}}
+				li.list-group-item: h4 Total Score: 
+					small {{player.score}}
+	h5.text-primary Next Round starts in: 
+	.progress.progress-striped#timer
+				.progress-bar.progress-bar-info.active(role="progressbar", aria-valuenow="{{timer}}", aria-valuemin="0", aria-valuemax="15", style="width: {{timer/15 * 100}}%")
+					p.lead.text-center {{timer}}

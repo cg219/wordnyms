@@ -2,11 +2,21 @@ var path = require("path");
 
 module.exports = function(grunty){
 
-	var bowerScripts = ["bower_components/angular/angular.js",
+	var bowerScripts = ["bower_components/jquery/dist/jquery.js",
+						"bower_components/angular/angular.js",
 						"bower_components/angular-route/angular-route.js",
 						"bower_components/angular-resource/angular-resource.js",
-						"bower_components/underscore/underscore.js"];
+						"bower_components/angular-audio/app/angular.audio.js",
+						"bower_components/underscore/underscore.js",
+						"bower_components/bootstrap/dist/js/bootstrap.js",
+						"bower_components/bootstrap-material-design/dist/js/ripple.js",
+						"bower_components/bootstrap-material-design/dist/js/material.js",
+						"bower_components/greensock/src/minified/TweenMax.min.js"];
 	var uglifyScripts = ["dev/js/*"];
+	var styles = ["bower_components/bootstrap/dist/css/bootstrap.css",
+						"bower_components/bootstrap-material-design/dist/css/ripple.css",
+						"bower_components/bootstrap-material-design/dist/css/material.css",
+						"dev/css/styles.css"];
 
 	grunty.initConfig({
 		pkg: grunty.file.readJSON("package.json"),
@@ -16,36 +26,53 @@ module.exports = function(grunty){
 					paths: ["public/css"]
 				},
 				files: {
-					"public/css/styles.css" : "dev/less/styles.less"
+					"dev/css/styles.css" : "dev/less/styles.less"
 				}
 			}
 		},
 		clean: {
 			libs: ["public/js/libs"]
 		},
-		copy: {
-			bower: {
-				files: [{
-					expand: true,
-					src: bowerScripts,
-					dest: "public/js/libs/",
-					filter: "isFile",
-					flatten: true
-				}]
-			},
-			scripts: {
-				files: [{
-					expand: true,
-					src: ["dev/js/*"],
-					dest: "public/js/",
-					filter: "isFile",
-					flatten: true
-				}]
+		cssmin: {
+			build: {
+				files: {
+					"public/css/styles.css" : styles
+				}
 			}
 		},
+		// copy: {
+		// 	bower: {
+		// 		files: [{
+		// 			expand: true,
+		// 			src: bowerScripts,
+		// 			dest: "public/js/libs/",
+		// 			filter: "isFile",
+		// 			flatten: true
+		// 		}]
+		// 	},
+		// 	styles: {
+		// 		files: [{
+		// 			expand: true,
+		// 			src: bowerStyles,
+		// 			dest: "dev/css/",
+		// 			filter: "isFile",
+		// 			flatten: true
+		// 		}]
+		// 	},
+		// 	scripts: {
+		// 		files: [{
+		// 			expand: true,
+		// 			src: ["dev/js/*"],
+		// 			dest: "public/js/",
+		// 			filter: "isFile",
+		// 			flatten: true
+		// 		}]
+		// 	}
+		// },
 		uglify: {
 			options: {
-				mangle: false
+				mangle: true,
+				compress: true
 			},
 			libs: {
 				files: {
@@ -87,7 +114,7 @@ module.exports = function(grunty){
 			},
 			css: {
 				files: ["dev/less/*"],
-				tasks: ["less"]
+				tasks: ["less", "cssmin"]
 			}
 		},
 		focus: {
@@ -99,6 +126,7 @@ module.exports = function(grunty){
 	})
 
 	grunty.loadNpmTasks("grunt-contrib-clean");
+	grunty.loadNpmTasks("grunt-contrib-cssmin");
 	grunty.loadNpmTasks("grunt-contrib-copy");
 	grunty.loadNpmTasks("grunt-contrib-uglify");
 	grunty.loadNpmTasks("grunt-contrib-watch");
@@ -107,6 +135,6 @@ module.exports = function(grunty){
 	grunty.loadNpmTasks("grunt-focus");
 
 	grunty.registerTask("bowerLibs", ["clean:libs", "uglify:libs"]);
-	grunty.registerTask("build", ["clean:libs", "uglify:libs", "uglify:scripts", "jade", "less"]);
-	grunty.registerTask("default", ["clean:libs", "uglify:libs", "focus:all"]);
+	grunty.registerTask("build", ["clean:libs", "uglify:libs", "uglify:scripts", "jade", "less", "cssmin:build"]);
+	grunty.registerTask("default", ["focus:all"]);
 }

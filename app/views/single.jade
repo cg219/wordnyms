@@ -1,12 +1,35 @@
-div
-	h2 Round {{roundNumber}}
-	span.timer Remaining Time: {{timer}}
-	h4 {{currentWord}} ({{currentWordType}})
-	h5 Antonyms Left: {{antonymsLeft}}
-	h5 Synonyms Left: {{synonymsLeft}}
+.col-sm-2
+	.panel.panel-primary
+		.panel-heading
+			h1.panel-title Score
+		.panel-body
+			p.lead.text-warning.text-center {{score}} pts
+.col-sm-10
+	.panel.panel-primary
+		.panel-heading
+			h1.panel-title Round {{roundNumber}} 
+				small.text-white - Find all the synonyms and antonyms. Bonus points for not 3+ streaks.
+		.panel-body
+			//- p.lead.text-danger.text-center {{timer}}
+			.progress.progress-striped#timer
+				.progress-bar.progress-bar-danger.active(role="progressbar", aria-valuenow="{{timer}}", aria-valuemin="0", aria-valuemax="60", style="width: {{timer/60 * 100}}%")
+					p.lead.text-center {{timer}}
 
-	input(name="playerGuess", ng-model="playerGuess", km-enter="guess()" type="text", placeholder="Enter an Answer")
+			h2.text-center {{currentWord}}   
+				small ({{currentWordType}})
+			
+			.form-group.col-sm-8.col-sm-offset-2
+				input.form-control.input-lg(name="playerGuess", ng-model="playerGuess", km-enter="guess()" type="text", placeholder="Enter an Answer")
+				span.material-input
+			.col-sm-12
+				h5.text-warning Remaining Antonyms:  {{antonymsLeft}}
+			.col-sm-12
+				h5.text-warning Remaining Synonyms:  {{synonymsLeft}} 
+			
+			.col-sm-12
+				h6.text-primary: u Answers
+				ul#guesses.list-group
+					li.list-group-item(class="list-group-item-{{guess.class}}",ng-repeat="guess in guesses") {{guess.word}}
 
-	.buttons
-		button(ng-click="nextWord(currentWord)")
-			p Next Word
+			.buttons.pull-right
+				button.btn.btn-primary(ng-click="nextWord(currentWord)") Next Word
