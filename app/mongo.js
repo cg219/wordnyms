@@ -1,4 +1,7 @@
-var config = require("./../config/config.js");
+var config = require("./../config/config.js") || {
+	mongo: process.env.mongo,
+	words: process.env.words
+}
 var mongoose = require("mongoose");
 var WordModel = require("./models/WordModel")(mongoose);
 var _ = require("underscore");
