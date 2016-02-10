@@ -29,6 +29,7 @@ module.exports = function(router, app){
 			.then(function(foundWord){
 				if( foundWord.length > 0 ){
 					console.log("Found Word");
+					// console.log(foundWord[0])
 					// console.log("Type: " + foundWord[0].randomType());
 					res.json({
 						word: foundWord[0],
@@ -44,6 +45,7 @@ module.exports = function(router, app){
 							mongo.store(req.word, JSON.parse(result))
 								.then(function(newWord){
 									// console.log("Type: " + newWord.randomType());
+									// console.log(newWord)
 									res.json({
 										word: newWord,
 										type: newWord.randomType()

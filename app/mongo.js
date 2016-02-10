@@ -2,10 +2,31 @@ var config = require("./../config/config.js");
 var mongoose = require("mongoose");
 var WordModel = require("./models/WordModel")(mongoose);
 var _ = require("underscore");
+var conn;
+var options = {
+	server: {
+		socketOptions: {
+			keepAlive: 1,
+			connectTimeoutMS: 30000
+		}
+	},
+	replset: {
+		socketOptions: {
+			keepAlive: 1,
+			connectTimeoutMS : 30000
+		}
+	}
+};
 
-mongoose.connect(config.mongo);
+mongoose.connect(config.mongo, options);
+conn = mongoose.connection;
+
+conn.on("error", function(error){
+	console.log(error);
+})
 
 function loopNyms(collection, type, model){
+	console.log(collection)
 	_.each(collection, function(value, key, list){
 		if(key == "syn" || key == "ant"){
 			var section = key == "syn" ? "synonyms" : "antonyms"

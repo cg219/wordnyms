@@ -35,7 +35,7 @@ module.exports = function(mongoose){
 
 	schema.method("randomType", function(){
 		var self = this;
-		var validTypes = _.omit(self.types, function(value, key, object){
+		var validTypes = _.omit(self.types.toJSON(), function(value, key, object){
 			return value !== true;
 		});
 		var validKeys = _.keys(validTypes);
