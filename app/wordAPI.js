@@ -1,9 +1,14 @@
 var endpoint = require("./../config/urls");
 var request = require("./helpers.js");
-var config = require("./../config/config") || {
-	mongo: process.env.mongo,
-	words: process.env.words
-};
+try{
+	var config = require("./../config/config");
+}
+catch(e){
+	var config = {
+		mongo: process.env.mongo,
+		words: process.env.words
+	}
+}
 var mongo = require("./mongo");
 
 module.exports = function(router, app){

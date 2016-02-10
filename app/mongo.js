@@ -1,6 +1,11 @@
-var config = require("./../config/config.js") || {
-	mongo: process.env.mongo,
-	words: process.env.words
+try{
+	var config = require("./../config/config");
+}
+catch(e){
+	var config = {
+		mongo: process.env.mongo,
+		words: process.env.words
+	}
 }
 var mongoose = require("mongoose");
 var WordModel = require("./models/WordModel")(mongoose);
