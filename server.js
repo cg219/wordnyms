@@ -10,6 +10,6 @@ app.use(express.static(__dirname + "/public"));
 app.use("/api/nyms", nymAPI);
 app.use("/", routes);
 
-app.listen(1234, function(){
+app.listen(0.0.0.0, function(){
 	console.log("Running");
 });
